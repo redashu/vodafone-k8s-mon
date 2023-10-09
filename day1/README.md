@@ -243,3 +243,8 @@ CONTRIBUTING.md  Chart.lock  Chart.yaml  README.md  charts  templates  values.ya
 
 ```
 
+### understanding it more 
+
+<img src="um.png">
+
+
