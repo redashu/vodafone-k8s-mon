@@ -247,4 +247,90 @@ CONTRIBUTING.md  Chart.lock  Chart.yaml  README.md  charts  templates  values.ya
 
 <img src="um.png">
 
+## Database metric monitoring using Prometheus 
 
+### mysql database deployment 
+
+```
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  create deployment ashu-mysqldb --image=mysql --port 3306  --dry-run=client -o yaml   
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-mysqldb
+  name: ashu-mysqldb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-mysqldb
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-mysqldb
+    spec:
+      containers:
+      - image: mysql
+        name: mysql
+        ports:
+        - containerPort: 3306
+        resources: {}
+status: {}
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  create deployment ashu-mysqldb --image=mysql --port 3306  --dry-run=client -o yaml     >deploy.yaml 
+
+```
+
+### creating secret for mysql db deployment 
+
+```
+kubectl  create secret  generic ashu-db-cred --from-literal MYSQL_ROOT_PASSWORD=Dbhello@12345   --from-literal MYSQL_USER=ashu  --from-literal  MYSQL_PASSWORD=Roj@0987  --dry-run=client -o yaml
+```
+
+### final secret creation yaml 
+
+```
+kubectl  create secret  generic ashu-db-cred --from-literal MYSQL_ROOT_PASSWORD=Dbhello@12345   --from-literal MYSQL_USER=ashu  --from-literal  MYSQL_PASSWORD=Roj@0987  --dry-run=client -o yaml >secret.yaml 
+[ec2-user@vodafone ashu-mysql-poc]$ ls
+dbcred.txt  deploy.yaml  secret.yaml  service.yaml
+```
+
+### final database manifest file 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-mysqldb
+  name: ashu-mysqldb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-mysqldb
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-mysqldb
+    spec:
+      containers:
+      - image: mysql
+        name: mysql
+        ports:
+        - containerPort: 3306
+        resources: {}
+        env: # to put envirment variables
+        - name: MYSQL_DATABASE
+          value: ashu-emp-db
+        envFrom:
+        - secretRef:
+            name: ashu-db-cred
+status: {}
+
+```
