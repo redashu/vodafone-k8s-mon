@@ -385,9 +385,19 @@ ashu-db-svc   ClusterIP   10.100.142.27   <none>        3306/TCP   5s
 ### Now creating mysql-exporter 
 
 ```
-kubectl   create  deployment ashu-mysql-exporter --image=prom/mysqld-exporter --port 9104  --dry-run=client -o yaml 
+kubectl   create  deployment ashu-mysql-exporter --image=prom/mysqld-exporter --port 9104  --dry-run=client -o yaml  
 ```
 ### Creating configmap for mysql-exporter to connect any DB of mysql instance
+
+### my.cnf 
+
+```
+[client]
+user=root
+password=Dbhello@12345
+port=3306
+host=ashu-db-svc
+```
 
 ```
 [ec2-user@vodafone mysql-exporter]$ ls
@@ -417,5 +427,47 @@ ashu-db-cm         1      4s
 kube-root-ca.crt   1      167m
 [ec2-user@vodafone mysql-exporter]$ 
 ```
+### volume updated on mysql-export.yaml
+
+```
+[ec2-user@vodafone mysql-exporter]$ cat mysql_exporter.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-mysql-exporter
+  name: ashu-mysql-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-mysql-exporter
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-mysql-exporter
+    spec:
+      volumes:
+      - name: ashu-exp-vol
+        configMap:
+          name: ashu-db-cm 
+      containers:
+      - image: prom/mysqld-exporter
+        name: mysqld-exporter
+        ports:
+        - containerPort: 9104
+        resources: {}
+        volumeMounts:
+          - name: ashu-exp-vol
+            mountPath: /etc/my.cnf 
+            readOnly: true 
+status: {}
+
+```
+
+### final update 
 
 
