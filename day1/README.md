@@ -125,3 +125,92 @@ ashunode1-exporter   prom/node-exporter   "/bin/node_exporter"     node-exporter
 
 <img src="type2.png">
 
+## Creating custom namespace in k8s 
+
+```
+[ec2-user@vodafone ~]$ kubectl  create  ns ashu-project 
+namespace/ashu-project created
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl   get  ns
+NAME              STATUS   AGE
+ashu-project      Active   4s
+default           Active   6h42m
+kube-node-lease   Active   6h42m
+kube-public       Active   6h42m
+kube-system       Active   6h42m
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl config set-context --current --namespace ashu-project 
+Context "arn:aws:eks:ap-south-1:751136288263:cluster/vodafone-eks" modified.
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl   config get-contexts 
+CURRENT   NAME                                                       CLUSTER                                                    AUTHINFO                                                   NAMESPACE
+*         arn:aws:eks:ap-south-1:751136288263:cluster/vodafone-eks   arn:aws:eks:ap-south-1:751136288263:cluster/vodafone-eks   arn:aws:eks:ap-south-1:751136288263:cluster/vodafone-eks   ashu-project
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl  get pod
+No resources found in ashu-project namespace.
+[ec2-user@vodafone ~]$ 
+
+```
+
+### Installing prometheus-kube on EKS using helm 
+
+```
+helm repo list
+NAME           	URL                                               
+ashu-prometheus	https://prometheus-community.github.io/helm-charts
+```
+
+### installing -- 
+
+```
+[ec2-user@vodafone ~]$ helm install ashu-prom ashu-prometheus/kube-prometheus-stack --version 51.4.0
+NAME: ashu-prom
+LAST DEPLOYED: Mon Oct  9 10:00:41 2023
+NAMESPACE: ashu-project
+STATUS: deployed
+REVISION: 1
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace ashu-project get pods -l "release=ashu-prom"
+
+Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ 
+
+```
+
+### verify that 
+
+```
+[ec2-user@vodafone ~]$ helm ls
+NAME     	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+ashu-prom	ashu-project	1       	2023-10-09 10:05:38.218362561 +0000 UTC	deployed	kube-prometheus-stack-51.4.0	v0.68.0    
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl  get  po 
+NAME                                                    READY   STATUS    RESTARTS   AGE
+alertmanager-ashu-prom-kube-prometheus-alertmanager-0   2/2     Running   0          43s
+ashu-prom-grafana-6f55c8579-272j5                       3/3     Running   0          46s
+ashu-prom-kube-prometheus-operator-85696fc8b9-79h6m     1/1     Running   0          46s
+ashu-prom-kube-state-metrics-f976cfb9d-sgcbh            1/1     Running   0          46s
+ashu-prom-prometheus-node-exporter-8h9gg                1/1     Running   0          46s
+ashu-prom-prometheus-node-exporter-fkmrv                1/1     Running   0          46s
+ashu-prom-prometheus-node-exporter-qznlv                1/1     Running   0          46s
+ashu-prom-prometheus-node-exporter-rpx55                1/1     Running   0          46s
+prometheus-ashu-prom-kube-prometheus-prometheus-0       2/2     Running   0          43s
+[ec2-user@vodafone ~]$ kubectl  get svc
+NAME                                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+alertmanager-operated                    ClusterIP   None            <none>        9093/TCP,9094/TCP,9094/UDP   46s
+ashu-prom-grafana                        ClusterIP   10.100.53.153   <none>        80/TCP                       49s
+ashu-prom-kube-prometheus-alertmanager   ClusterIP   10.100.117.82   <none>        9093/TCP,8080/TCP            49s
+ashu-prom-kube-prometheus-operator       ClusterIP   10.100.22.28    <none>        443/TCP                      49s
+ashu-prom-kube-prometheus-prometheus     ClusterIP   10.100.78.158   <none>        9090/TCP,8080/TCP            49s
+ashu-prom-kube-state-metrics             ClusterIP   10.100.31.87    <none>        8080/TCP                     49s
+ashu-prom-prometheus-node-exporter       ClusterIP   10.100.23.157   <none>        9100/TCP                     49s
+prometheus-operated                      ClusterIP   None            <none>        9090/TCP                     46s
+[ec2-user@vodafone ~]$ 
+
+
+```
+
+### 
