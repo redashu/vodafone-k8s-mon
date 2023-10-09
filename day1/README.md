@@ -334,3 +334,50 @@ spec:
 status: {}
 
 ```
+
+### creating database 
+
+```
+[ec2-user@vodafone ashu-mysql-poc]$ ls
+dbcred.txt  deploy.yaml  secret.yaml  service.yaml
+[ec2-user@vodafone ashu-mysql-poc]$ 
+[ec2-user@vodafone ashu-mysql-poc]$ 
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  apply -f deploy.yaml  -f secret.yaml  
+deployment.apps/ashu-mysqldb created
+secret/ashu-db-cred created
+
+```
+
+### creating service for db access
+
+```
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  get deploy
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-mysqldb   1/1     1            1           7m5s
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  expose deployment  ashu-mysqldb  --type ClusterIP --port 3306 --name ashu-db-svc    --dry-run=client -o yaml  
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-mysqldb
+  name: ashu-db-svc
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: ashu-mysqldb
+  type: ClusterIP
+status:
+  loadBalancer: {}
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  expose deployment  ashu-mysqldb  --type ClusterIP --port 3306 --name ashu-db-svc    --dry-run=client -o yaml  >dbsvc.yaml 
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  apply -f dbsvc.yaml 
+service/ashu-db-svc created
+[ec2-user@vodafone ashu-mysql-poc]$ kubectl  get svc
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+ashu-db-svc   ClusterIP   10.100.142.27   <none>        3306/TCP   5s
+[ec2-user@vodafone ashu-mysql-poc]$ 
+
+```
