@@ -381,3 +381,41 @@ ashu-db-svc   ClusterIP   10.100.142.27   <none>        3306/TCP   5s
 [ec2-user@vodafone ashu-mysql-poc]$ 
 
 ```
+
+### Now creating mysql-exporter 
+
+```
+kubectl   create  deployment ashu-mysql-exporter --image=prom/mysqld-exporter --port 9104  --dry-run=client -o yaml 
+```
+### Creating configmap for mysql-exporter to connect any DB of mysql instance
+
+```
+[ec2-user@vodafone mysql-exporter]$ ls
+my.cnf  mysql_exporter.yaml
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ kubectl  create configmap  ashu-db-cm  --from-file=my.cnf --dry-run=client -o yaml 
+apiVersion: v1
+data:
+  my.cnf: |
+    [client]
+    user=root
+    password=Dbhello@12345
+    port=3306
+    host=ashu-db-svc
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: ashu-db-cm
+[ec2-user@vodafone mysql-exporter]$ kubectl  create configmap  ashu-db-cm  --from-file=my.cnf --dry-run=client -o yaml >cm.yaml
+[ec2-user@vodafone mysql-exporter]$ ls
+cm.yaml  my.cnf  mysql_exporter.yaml
+[ec2-user@vodafone mysql-exporter]$ kubectl  create -f cm.yaml 
+configmap/ashu-db-cm created
+[ec2-user@vodafone mysql-exporter]$ kubectl  get  cm
+NAME               DATA   AGE
+ashu-db-cm         1      4s
+kube-root-ca.crt   1      167m
+[ec2-user@vodafone mysql-exporter]$ 
+```
+
+
