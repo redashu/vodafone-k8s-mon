@@ -468,6 +468,74 @@ status: {}
 
 ```
 
-### final update 
+### final update in mysql-exporter.yaml
+
+```
+[ec2-user@vodafone mysql-exporter]$ cat mysql_exporter.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-mysql-exporter
+  name: ashu-mysql-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-mysql-exporter
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-mysql-exporter
+    spec:
+      volumes:
+      - name: ashu-exp-vol
+        configMap:
+          name: ashu-db-cm 
+      containers:
+      - image: prom/mysqld-exporter
+        name: mysqld-exporter
+        args: # to pass cmd argument in container 
+          - "--collect.auto_increment.columns"
+          - "--config.my-cnf=/etc/my.cnf"  
+          - "--web.listen-address=:9104"  
+          - "--web.telemetry-path=/metrics"
+        ports:
+        - containerPort: 9104
+        resources: {}
+        volumeMounts:
+          - name: ashu-exp-vol
+            mountPath: /etc/my.cnf 
+            subPath: my.cnf
+            readOnly: true 
+status: {}
+
+```
+
+### lets deploy it 
+
+```
+[ec2-user@vodafone mysql-exporter]$ kubectl  apply -f mysql_exporter.yaml 
+deployment.apps/ashu-mysql-exporter configured
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ kubectl  get deploy
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-mysql-exporter   1/1     1            1           113s
+ashu-mysqldb          1/1     1            1           64m
+[ec2-user@vodafone mysql-exporter]$ kubectl  get cm
+NAME               DATA   AGE
+ashu-db-cm         1      20m
+kube-root-ca.crt   1      3h7m
+[ec2-user@vodafone mysql-exporter]$ kubectl  get po
+NAME                                  READY   STATUS    RESTARTS   AGE
+ashu-mysql-exporter-75989f9f9-vsnsg   1/1     Running   0          2m1s
+ashu-mysqldb-5bf89fc7f5-z2q7p         1/1     Running   0          64m
+[ec2-user@vodafone mysql-exporter]$ 
+
+```
 
 
