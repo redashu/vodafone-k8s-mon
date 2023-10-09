@@ -213,4 +213,24 @@ prometheus-operated                      ClusterIP   None            <none>     
 
 ```
 
-### 
+###  pulling chart to understand it 
+
+```
+[ec2-user@vodafone ~]$ helm repo ls
+NAME           	URL                                               
+ashu-prometheus	https://prometheus-community.github.io/helm-charts
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ helm pull  ashu-prometheus/kube-prometheus-stack --version 51.4.0 
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ ls
+ashu-monitoring  kube-prometheus-stack-51.4.0.tgz  poc
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ helm pull  ashu-prometheus/kube-prometheus-stack --version 51.4.0  --untar 
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ ls
+ashu-monitoring  kube-prometheus-stack  kube-prometheus-stack-51.4.0.tgz  poc
+[ec2-user@vodafone ~]$ 
+
+```
+
+
