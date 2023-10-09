@@ -113,3 +113,15 @@ ashu-prometheus      prom/prometheus      "/bin/prometheus --c…"   prometheus 
 ashunode1-exporter   prom/node-exporter   "/bin/node_exporter"     node-exporter       7 seconds ago       Up 6 seconds        0.0.0.0:1199->9100/tcp, :::1199->9100/tcp
 [ec2-user@vodafone ashu-monitoring]$ docker-compose  down 
 ```
+
+
+## getting started with PromQL 
+
+### data type in PromQL 
+
+<img src="type1.png">
+
+### range vector instance
+
+<img src="type2.png">
+
