@@ -233,4 +233,13 @@ ashu-monitoring  kube-prometheus-stack  kube-prometheus-stack-51.4.0.tgz  poc
 
 ```
 
+### helm chart important things 
+
+```
+ec2-user@vodafone ~]$ cd  kube-prometheus-stack/
+[ec2-user@vodafone kube-prometheus-stack]$ ls
+CONTRIBUTING.md  Chart.lock  Chart.yaml  README.md  charts  templates  values.yaml
+[ec2-user@vodafone kube-prometheus-stack]$ 
+
+```
 
