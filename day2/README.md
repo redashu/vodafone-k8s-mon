@@ -148,3 +148,24 @@ admin[ec2-user@vodafone ~]$
 prom-operator[ec2-user@vodafone ~]$ 
 
 ```
+
+
+## MYSQL exporter -- done -- Deployment , cm ,service 
+
+```
+[ec2-user@vodafone mysql-exporter]$ kubectl  get  deploy
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-mysql-exporter   1/1     1            1           16h
+ashu-mysqldb          1/1     1            1           17h
+[ec2-user@vodafone mysql-exporter]$ kubectl   expose deployment ashu-mysql-exporter --type ClusterIP --port 9104 --dry-run=client -o yaml >svc.yaml 
+[ec2-user@vodafone mysql-exporter]$ ls
+cm.yaml  my.cnf  mysql_exporter.yaml  svc.yaml
+[ec2-user@vodafone mysql-exporter]$ kubectl  apply -f svc.yaml 
+service/ashu-mysql-exporter created
+[ec2-user@vodafone mysql-exporter]$ kubectl  get  svc
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+ashu-db-svc           ClusterIP   10.100.142.27   <none>        3306/TCP   17h
+ashu-mysql-exporter   ClusterIP   10.100.54.122   <none>        9104/TCP   3s
+[ec2-user@vodafone mysql-exporter]$ 
+
+```
