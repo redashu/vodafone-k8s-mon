@@ -395,3 +395,38 @@ false
 
 ```
 
+### sending some http request internally 
+
+```
+ec2-user@vodafone mysql-exporter]$ kubectl  get  svc
+NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashu-custom-app       ClusterIP   10.100.253.118   <none>        5000/TCP   20m
+ashu-db-svc           ClusterIP   10.100.142.27    <none>        3306/TCP   19h
+ashu-mysql-exporter   ClusterIP   10.100.54.122    <none>        9104/TCP   124m
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ kubectl  run  attack --rm -it --image=alpine --command sh 
+
+
+
+If you don't see a command prompt, try pressing enter.
+
+/ # 
+/ # 
+/ # apk add curl &>/dev/null
+/ # curl http://ashu-custom-app.ashu-project.svc.cluster.local:5000 
+Welcome to Custom Metrics Application/ # 
+/ # 
+/ # curl http://ashu-custom-app.ashu-project.svc.cluster.local:5000/records 
+<!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+/ # curl http://ashu-custom-app.ashu-project.svc.cluster.local:5000/record
+Metric recorded: Request count incremented/ # 
+/ # 
+
+```
+
+
