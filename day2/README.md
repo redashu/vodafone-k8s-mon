@@ -169,3 +169,63 @@ ashu-mysql-exporter   ClusterIP   10.100.54.122   <none>        9104/TCP   3s
 [ec2-user@vodafone mysql-exporter]$ 
 
 ```
+
+## COncept of additional scapre for prometheus using HELm upgrade
+
+### adding prometheus-scarpe change
+
+```
+[ec2-user@vodafone mysql-exporter]$ cat additional-scrape-helm.yaml 
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+     - job_name: 'ashu-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['ashu-mysql-exporter.ashu-project.svc.cluster.local:9104']
+     - job_name: 'bh-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['bh-mysql-exporter.bharani.svc.cluster.local:9104']
+```
+
+### now we have to upgraade helm chart 
+
+## step 1 
+
+```
+[ec2-user@vodafone mysql-exporter]$ helm repo ls -n monitoring 
+NAME           	URL                                               
+ashu-prometheus	https://prometheus-community.github.io/helm-charts
+```
+
+### step 2 
+
+```
+[ec2-user@vodafone mysql-exporter]$ helm  ls -n monitoring 
+NAME                    	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+my-kube-prometheus-stack	monitoring	3       	2023-10-10 05:42:14.914547054 +0000 UTC	deployed	kube-prometheus-stack-51.4.0	v0.68.0    
+```
+
+### step 3  
+
+```
+helm upgrade my-kube-prometheus-stack ashu-prometheus/kube-prometheus-stack --version 51.4.0  --values  additional-scrape-helm.yaml -n monitoring
+
+===>> output expect
+
+alse
+Release "my-kube-prometheus-stack" has been upgraded. Happy Helming!
+NAME: my-kube-prometheus-stack
+LAST DEPLOYED: Tue Oct 10 05:42:14 2023
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 3
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace monitoring get pods -l "release=my-kube-prometheus-stack"
+
+```
+
+
+
