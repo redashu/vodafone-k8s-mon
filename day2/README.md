@@ -231,5 +231,50 @@ kube-prometheus-stack has been installed. Check its status by running:
 
 <img src="q1.png">
 
+### Custom metrics for promethes by sample APP
+
+<img src="appc.png">
+
+## Creating container of custom app with some inbuild metrics
+
+```
+git clone https://github.com/redashu/prom-custom-app.git
+```
+
+### building docker image for app 
+
+```
+[ec2-user@vodafone ashu-monitoring]$ ls
+ashu-mysql-poc  docker-compose.yaml  prom-custom-app  prometheus.yml
+[ec2-user@vodafone ashu-monitoring]$ 
+[ec2-user@vodafone ashu-monitoring]$ mv prom-custom-app/ ashu-custom-app
+[ec2-user@vodafone ashu-monitoring]$ ls
+ashu-custom-app  ashu-mysql-poc  docker-compose.yaml  prometheus.yml
+[ec2-user@vodafone ashu-monitoring]$ cd ashu-custom-app/
+[ec2-user@vodafone ashu-custom-app]$ ls
+Dockerfile  README.md  app.py  eks-deployment  requirements.txt
+[ec2-user@vodafone ashu-custom-app]$ docker build  -t  ashu-python-customapp:version1 . 
+Sending build context to Docker daemon  67.07kB
+Step 1/6 : FROM python:3.9
+3.9: Pulling from library/python
+167b8a53ca45: Already exists 
+b47a222d28fa: Already exists 
+debce5f9f3a9: Pull complete 
+1d7ca7cd2e06: Pull complete 
+ff3119008f58: Extracting [======================>                            ]  2.818MB/6.389MB
+88
+```
+
+### verify image name 
+
+```
+[ec2-user@vodafone ashu-custom-app]$ docker images
+REPOSITORY              TAG        IMAGE ID       CREATED          SIZE
+rg-custom-metric-app    v1         cf2aa25de4d4   7 seconds ago    1.01GB
+np-custom-app           v1         280eedad1c74   23 seconds ago   1.01GB
+ashu-python-customapp   version1   7a3121a12a60   23 seconds ago   1.01GB
+bharani_prom            v1         0a538b80eedb   23 seconds ago   1.01GB
+
+```
 
 
