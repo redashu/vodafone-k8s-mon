@@ -278,3 +278,120 @@ bharani_prom            v1         0a538b80eedb   23 seconds ago   1.01GB
 ```
 
 
+### lets deploy into EKS 
+
+```
+kubectl  create  deployment ashu-custom-app --image=docker.io/dockerashu/voda-prome-customapp:v1 --port 5000 --dry-run=client -o yaml >deployment.yaml
+```
+
+### checking 
+
+```
+[ec2-user@vodafone ashu-custom-app]$ kubectl  apply -f deployment.yaml 
+deployment.apps/ashu-custom-app created
+[ec2-user@vodafone ashu-custom-app]$ kubectl  get deploy
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-custom-app       0/1     1            0           4s
+ashu-mysql-exporter   1/1     1            1           18h
+ashu-mysqldb          1/1     1            1           19h
+[ec2-user@vodafone ashu-custom-app]$ kubectl  get deploy
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-custom-app       1/1     1            1           41s
+```
+
+### expose app using service 
+
+```
+kubectl  get  deploy 
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-custom-app       1/1     1            1           74s
+ashu-mysql-exporter   1/1     1            1           18h
+ashu-mysqldb          1/1     1            1           19h
+[ec2-user@vodafone ashu-custom-app]$ kubectl  expose deployment ashu-custom-app --type ClusterIP --port 5000 --dry-run=client -o yaml >svc.yaml 
+[ec2-user@vodafone ashu-custom-app]$ kubectl  apply -f svc.yaml 
+service/ashu-custom-app created
+[ec2-user@vodafone ashu-custom-app]$ kubectl  get svc
+NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+ashu-custom-app       ClusterIP   10.100.253.118   <none>        5000/TCP   3s
+ashu-db-svc           ClusterIP   10.100.142.27    <none>        3306/TCP   19h
+ashu-mysql-exporter   ClusterIP   10.100.54.122    <none>        9104/TCP   104m
+```
+
+### to access this app by end users i need to create Ingress routing rule 
+
+```
+[ec2-user@vodafone ashu-custom-app]$ cat ingress.yaml 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ashu-custom-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: test-voda.delvex.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ashu-custom-app
+            port:
+              number: 5000
+
+[ec2-user@vodafone ashu-custom-app]$ kubectl  create -f ingress.yaml 
+ingress.networking.k8s.io/ashu-custom-ingress created
+[ec2-user@vodafone ashu-custom-app]$ 
+[ec2-user@vodafone ashu-custom-app]$ kubectl  get ingress
+NAME                  CLASS    HOSTS                 ADDRESS   PORTS   AGE
+ashu-custom-ingress   <none>   test-voda.delvex.io             80      6s
+[ec2-user@vodafone ashu-custom-app]$ 
+
+```
+
+### adding additional scrape
+
+```
+[ec2-user@vodafone mysql-exporter]$ cat additional-scrape-helm.yaml 
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+     - job_name: 'ashu-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['ashu-mysql-exporter.ashu-project.svc.cluster.local:9104']
+     - job_name: 'bh-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['bh-mysql-exporter.bharani.svc.cluster.local:9104']
+     - job_name: 'ashu-custom-app'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['ashu-custom-app.ashu-project.svc.cluster.local:5000']
+     - job_name: 'rg-custom-app'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['rg-custom-app.rgodiyal.svc.cluster.local:5000']
+```
+
+### upgrading helm 
+
+```
+[ec2-user@vodafone mysql-exporter]$ ls
+additional-scrape-helm.yaml  cm.yaml  my.cnf  mysql_exporter.yaml  svc.yaml
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ helm repo ls -n monitoring 
+NAME           	URL                                               
+ashu-prometheus	https://prometheus-community.github.io/helm-charts
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ helm ls -n monitoring 
+NAME                    	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+my-kube-prometheus-stack	monitoring	5       	2023-10-10 05:51:35.655712658 +0000 UTC	deployed	kube-prometheus-stack-51.4.0	v0.68.0    
+[ec2-user@vodafone mysql-exporter]$ 
+[ec2-user@vodafone mysql-exporter]$ helm upgrade my-kube-prometheus-stack   ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values  additional-scrape-helm.yaml  -n monitoring 
+false
+
+```
+
