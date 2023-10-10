@@ -459,5 +459,9 @@ prometheus:
 ```
  helm upgrade my-kube-prometheus-stack   ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values  additional-scrape-helm.yaml  -n monitoring 
 ```
+## Pushgateway understanding 
+
+<img src="psh.png">
+
 
 
