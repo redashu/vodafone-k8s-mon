@@ -510,4 +510,186 @@ alertmanager:
  helm upgrade my-kube-prometheus-stack  ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values new-alert-values.yaml   -n monitoring 
 ```
 
+### MS teams with alertmanager understanding 
+
+<img src="msteams.png">
+
+### better understanding 
+
+<img src="bt.png">
+
+### adding prometheus-msteams proxy helm repo 
+
+```
+helm repo add prometheus-msteams https://prometheus-msteams.github.io/prometheus-msteams/
+```
+
+### installing proxy of msteams
+
+```
+[ec2-user@vodafone ms-teams]$ helm repo list
+NAME              	URL                                                     
+ashu-prometheus   	https://prometheus-community.github.io/helm-charts      
+prometheus-msteams	https://prometheus-msteams.github.io/prometheus-msteams/
+[ec2-user@vodafone ms-teams]$ helm install prometheus-vodafone  prometheus-msteams/prometheus-msteams  -n monitoring 
+NAME: prometheus-vodafone
+LAST DEPLOYED: Tue Oct 10 11:24:41 2023
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+** Please be patient while the chart is being deployed **
+
+To monitor the deployment, execute the following command:
+
+	kubectl get pods -l app=prometheus-msteams  --namespace monitoring -w
+[ec2-user@vodafone ms-teams]$ helm ls -n monitoring 
+NAME                    	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+my-kube-prometheus-stack	monitoring	17      	2023-10-10 10:18:39.868255533 +0000 UTC	deployed	kube-prometheus-stack-51.4.0	v0.68.0    
+prometheus-vodafone     	monitoring	1       	2023-10-10 11:24:41.526881558 +0000 UTC	deployed	prometheus-msteams-1.3.4    	v1.5.2     
+[ec2-user@vodafone ms-teams]$ 
+
+```
+
+### checking existing connectors in prometheus-msteams is having no default conneect
+
+```
+[ec2-user@vodafone ms-teams]$ helm show values   prometheus-msteams/prometheus-msteams    | grep -i connectors
+connectors: []
+```
+
+### creating custom connector values.yaml
+
+```
+[ec2-user@vodafone ms-teams]$ cat  connector-values.yaml 
+connectors:
+- voda-connect: "https://delvexio.webhook.office.com/webhookb2/b878d717-c32d-4bab-b70d-236055466255@da228470-00d6-408f-a48b-645b4818de82/IncomingWebhook/a443
+```
+
+### upgrade helm chart with new values.yaml 
+
+```
+[ec2-user@vodafone ms-teams]$ ls
+connector-values.yaml  teamsauth.txt
+[ec2-user@vodafone ms-teams]$ helm upgrade  prometheus-vodafone prometheus-msteams/prometheus-msteams --values connector-values.yaml  -n monitoring 
+false
+Release "prometheus-vodafone" has been upgraded. Happy Helming!
+NAME: prometheus-vodafone
+LAST DEPLOYED: Tue Oct 10 11:34:00 2023
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+** Please be patient while the chart is being deployed **
+
+To monitor the deployment, execute the following command:
+
+	kubectl get pods -l app=prometheus-msteams  --namespace monitoring -w
+```
+
+
+### lets verify connector updates
+
+```
+[ec2-user@vodafone ms-teams]$ kubectl  get  po -n monitoring 
+NAME                                                           READY   STATUS    RESTARTS   AGE
+alertmanager-my-kube-prometheus-stack-alertmanager-0           2/2     Running   0          78m
+my-kube-prometheus-stack-grafana-b5bc54dd6-qjh59               3/3     Running   0          78m
+my-kube-prometheus-stack-kube-state-metrics-647554675d-tp2sl   1/1     Running   0          78m
+my-kube-prometheus-stack-operator-7bf78c6bb9-qvk4f             1/1     Running   0          78m
+my-kube-prometheus-stack-prometheus-node-exporter-4pvhq        1/1     Running   0          78m
+my-kube-prometheus-stack-prometheus-node-exporter-9w5xx        1/1     Running   0          78m
+my-kube-prometheus-stack-prometheus-node-exporter-l8gn4        1/1     Running   0          78m
+my-kube-prometheus-stack-prometheus-node-exporter-r8dt9        1/1     Running   0          78m
+prometheus-msteams-84cf7ff8f5-wdghc                            1/1     Running   0          32s
+prometheus-my-kube-prometheus-stack-prometheus-0               2/2     Running   0          78m
+
+
+[ec2-user@vodafone ms-teams]$ 
+[ec2-user@vodafone ms-teams]$ kubectl  -n monitoring logs prometheus-msteams-84cf7ff8f5-wdghc
+{"caller":"transport.go:39","level":"debug","request_path_added":"voda-connect","ts":"2023-10-10T11:34:05.874908445Z"}
+```
+
+### upgrading promethues with new prometheus.yaml config 
+
+```
+[ec2-user@vodafone alter-manager]$ cat  new-alert-values.yaml 
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+     - job_name: 'prometheus'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['localhost:9090']
+
+alertmanager:
+  config:
+    route:
+      group_by: ['alertname', 'priority']
+      group_wait: 10s
+      group_interval: 1m
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null' 
+      - receiver: 'email-test'
+        continue: true
+        match:
+          alertname: KubeControllerManagerDown
+      - receiver: 'ashu-msteams'
+        match:
+          alertname: KubeControllerManagerDown
+        continue: true
+      - receiver: 'ashu-msteams'
+        match:
+          alertname: KubeSchedulerDown
+        continue: true
+
+    receivers:
+      - name: "null"
+      - name: 'ashu-msteams'
+        webhook_configs:
+        - url: "http://prometheus-msteams.monitoring.svc.cluster.local:2000/voda-connect"
+          send_resolved: true 
+      - name: "email-test"
+        email_configs:
+        - to: 'ashutoshhsingh93@gmail.com'
+          from: 'learntechbyme@gmail.com'
+          auth_username: 'learntechbyme@gmail.com'
+          auth_password: 'ytjolnzgradnkbfx'
+          smarthost: 'smtp.gmail.com:587'
+          require_tls: true
+          send_resolved: true
+
+```
+
+### upgrade it 
+
+```
+ec2-user@vodafone alter-manager]$ helm repo ls
+NAME              	URL                                                     
+ashu-prometheus   	https://prometheus-community.github.io/helm-charts      
+prometheus-msteams	https://prometheus-msteams.github.io/prometheus-msteams/
+[ec2-user@vodafone alter-manager]$ 
+[ec2-user@vodafone alter-manager]$ helm ls -n monitoring 
+NAME                    	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+my-kube-prometheus-stack	monitoring	17      	2023-10-10 10:18:39.868255533 +0000 UTC	deployed	kube-prometheus-stack-51.4.0	v0.68.0    
+prometheus-vodafone     	monitoring	2       	2023-10-10 11:34:00.624476771 +0000 UTC	deployed	prometheus-msteams-1.3.4    	v1.5.2     
+[ec2-user@vodafone alter-manager]$ helm upgrade my-kube-prometheus-stack ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values new-alert-values.yaml  -n monitoring 
+false
+Release "my-kube-prometheus-stack" has been upgraded. Happy Helming!
+NAME: my-kube-prometheus-stack
+LAST DEPLOYED: Tue Oct 10 11:52:28 2023
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 18
+NOTES:
+kube-prometheus-stack has been installed. Check its status by running:
+  kubectl --namespace monitoring get pods -l "release=my-kube-prometheus-stack"
+
+Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
+
+```
 
