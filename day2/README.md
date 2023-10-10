@@ -464,4 +464,50 @@ prometheus:
 <img src="psh.png">
 
 
+## adding email config in prometheus -- 
+
+```
+[ec2-user@vodafone alter-manager]$ cat  new-alert-values.yaml 
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+     - job_name: 'prometheus'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['localhost:9090']
+
+alertmanager:
+  config:
+    route:
+      group_by: ['alertname', 'priority']
+      group_wait: 10s
+      group_interval: 1m
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: 'null' 
+      - receiver: 'email-test'
+        continue: true
+        match:
+          alertname: KubeControllerManagerDown
+    receivers:
+      - name: "null"
+      - name: "email-test"
+        email_configs:
+        - to: 'ashutoshhsingh93@gmail.com'
+          from: 'learntechbyme@gmail.com'
+          auth_username: 'learntechbyme@gmail.com'
+          auth_password: ''
+          smarthost: 'smtp.gmail.com:587'
+          require_tls: true
+          send_resolved: true
+
+```
+
+### upgrade helm 
+
+```
+ helm upgrade my-kube-prometheus-stack  ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values new-alert-values.yaml   -n monitoring 
+```
+
 
