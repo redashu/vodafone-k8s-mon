@@ -76,3 +76,75 @@ status:
     ingress:
     - hostname: a007dc21a36fd4131b54a0f746b3c6a7-1932653871.ap-south-1.elb.amazonaws.com
 ```
+
+### How to get user and password of grafana 
+
+```
+[ec2-user@vodafone ~]$ kubectl  get secret  -n monitoring 
+NAME                                                              TYPE                 DATA   AGE
+alertmanager-my-kube-prometheus-stack-alertmanager                Opaque               1      17h
+alertmanager-my-kube-prometheus-stack-alertmanager-generated      Opaque               1      17h
+alertmanager-my-kube-prometheus-stack-alertmanager-tls-assets-0   Opaque               0      17h
+alertmanager-my-kube-prometheus-stack-alertmanager-web-config     Opaque               1      17h
+my-kube-prometheus-stack-admission                                Opaque               3      17h
+my-kube-prometheus-stack-grafana                                  Opaque               3      17h
+my-kube-prometheus-stack-prometheus-scrape-confg                  Opaque               1      3h21m
+prometheus-my-kube-prometheus-stack-prometheus                    Opaque               1      17h
+prometheus-my-kube-prometheus-stack-prometheus-tls-assets-0       Opaque               1      17h
+prometheus-my-kube-prometheus-stack-prometheus-web-config         Opaque               1      17h
+sh.helm.release.v1.my-kube-prometheus-stack.v1                    helm.sh/release.v1   1      17h
+sh.helm.release.v1.my-kube-prometheus-stack.v2                    helm.sh/release.v1   1      3h22m
+[ec2-user@vodafone ~]$ kubectl  describe  secrets  my-kube-prometheus-stack-grafana  -n monitoring 
+Name:         my-kube-prometheus-stack-grafana
+Namespace:    monitoring
+Labels:       app.kubernetes.io/instance=my-kube-prometheus-stack
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=grafana
+              app.kubernetes.io/version=10.1.4
+              helm.sh/chart=grafana-6.60.3
+Annotations:  meta.helm.sh/release-name: my-kube-prometheus-stack
+              meta.helm.sh/release-namespace: monitoring
+
+Type:  Opaque
+
+Data
+====
+admin-user:      5 bytes
+ldap-toml:       0 bytes
+admin-password:  13 bytes
+
+```
+
+###  details below
+
+```
+[ec2-user@vodafone ~]$ kubectl  get   secrets  my-kube-prometheus-stack-grafana  -n monitoring  -o yaml 
+apiVersion: v1
+data:
+  admin-password: cHJvbS1vcGVyYXRvcg==
+  admin-user: YWRtaW4=
+  ldap-toml: ""
+kind: Secret
+metadata:
+  annotations:
+    meta.helm.sh/release-name: my-kube-prometheus-stack
+    meta.helm.sh/release-namespace: monitoring
+  creationTimestamp: "2023-10-09T11:28:24Z"
+  labels:
+    app.kubernetes.io/instance: my-kube-prometheus-stack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/version: 10.1.4
+    helm.sh/chart: grafana-6.60.3
+  name: my-kube-prometheus-stack-grafana
+  namespace: monitoring
+  resourceVersion: "148948"
+  uid: 53481efa-8037-446f-b7a1-2b2337e73752
+type: Opaque
+[ec2-user@vodafone ~]$ echo "YWRtaW4="  | base64 -d
+admin[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ echo "cHJvbS1vcGVyYXRvcg=="  | base64 -d
+prom-operator[ec2-user@vodafone ~]$ 
+
+```
