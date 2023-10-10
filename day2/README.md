@@ -429,4 +429,35 @@ Metric recorded: Request count incremented/ #
 
 ```
 
+### custom app -- addintiona scrape 
+
+```
+[ec2-user@vodafone mysql-exporter]$ cat  additional-scrape-helm.yaml 
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+     - job_name: 'ashu-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['ashu-mysql-exporter.ashu-project.svc.cluster.local:9104']
+     - job_name: 'bh-mysql-exporter-new'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['bh-mysql-exporter.bharani.svc.cluster.local:9104']
+     - job_name: 'ashu-custom-app'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['ashu-custom-app.ashu-project.svc.cluster.local:5000']
+     - job_name: 'rg-custom-app'
+       scrape_interval: 5s
+       static_configs:
+        - targets: ['rg-custom-app.rgodiyal.svc.cluster.local:5000']
+```
+
+### helm upgrade command 
+
+```
+ helm upgrade my-kube-prometheus-stack   ashu-prometheus/kube-prometheus-stack --version 51.4.0 --values  additional-scrape-helm.yaml  -n monitoring 
+```
+
 
