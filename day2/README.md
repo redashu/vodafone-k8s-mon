@@ -227,5 +227,9 @@ kube-prometheus-stack has been installed. Check its status by running:
 
 ```
 
+### checking on the prometheus query ui
+
+<img src="q1.png">
+
 
 
