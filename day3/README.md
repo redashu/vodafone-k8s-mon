@@ -124,3 +124,28 @@ spec:
 
 ```
 
+### Metrics and log collection with cloudwatch 
+
+<img src="cloudw.png">
+
+### cloudwatch agent config detail
+
+```
+[root@ip-172-31-40-145 ~]# 
+[root@ip-172-31-40-145 ~]# 
+[root@ip-172-31-40-145 ~]# cd  /opt/aws/amazon-cloudwatch-agent/
+[root@ip-172-31-40-145 amazon-cloudwatch-agent]# ls
+LICENSE  NOTICE  RELEASE_NOTES  THIRD-PARTY-LICENSES  bin  doc  etc  logs  var
+[root@ip-172-31-40-145 amazon-cloudwatch-agent]# ls bin/
+CWAGENT_VERSION          amazon-cloudwatch-agent-config-wizard  config-downloader  config.json      start-amazon-cloudwatch-agent
+amazon-cloudwatch-agent  amazon-cloudwatch-agent-ctl            config-translator  config.json.bak
+[root@ip-172-31-40-145 amazon-cloudwatch-agent]# 
+
+
+```
+
+### cloudwatch to prometheus and grafana
+
+<img src="cmp.png">
+
+
