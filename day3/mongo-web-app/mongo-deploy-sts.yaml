@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongodb
-  namespace: dashboard
 spec:
   serviceName: mongodb
   replicas: 1
@@ -20,8 +19,6 @@ spec:
           ports:
             - containerPort: 27017
           volumeMounts:
-            - name: mongo-data
-              mountPath: /data/db
             - name: mongo-init-script
               mountPath: /docker-entrypoint-initdb.d
   
@@ -34,12 +31,3 @@ spec:
         - name: mongo-init-script
           configMap:
             name: mongo-init-config
-  volumeClaimTemplates:
-    - metadata:
-        name: mongo-data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: "gp2"
-        resources:
-          requests:
-            storage: 1Gi
