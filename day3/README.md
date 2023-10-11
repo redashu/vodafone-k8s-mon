@@ -1,12 +1,51 @@
-# vodafone-k8s-mon
+### Revision 
 
-### Training plan 
+### technical 
 
-<img src="plan.png">
-
-### labs 
-
-<img src="labs.png">
-
-
-
+```
+[ec2-user@vodafone ~]$ helm ls -n monitoring 
+NAME                    	NAMESPACE 	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION
+my-kube-prometheus-stack	monitoring	20      	2023-10-10 12:54:19.770808127 +0000 UTC	failed  	kube-prometheus-stack-51.4.0	v0.68.0    
+prometheus-vodafone     	monitoring	4       	2023-10-10 12:32:23.000195469 +0000 UTC	deployed	prometheus-msteams-1.3.4    	v1.5.2     
+[ec2-user@vodafone ~]$ kubectl   get  po -n monitoring 
+NAME                                                           READY   STATUS      RESTARTS   AGE
+alertmanager-my-kube-prometheus-stack-alertmanager-0           2/2     Running     0          16h
+my-kube-prometheus-stack-admission-create-qsmh8                0/1     Completed   0          15h
+my-kube-prometheus-stack-grafana-b5bc54dd6-xbxl2               3/3     Running     0          15h
+my-kube-prometheus-stack-kube-state-metrics-647554675d-jpf52   1/1     Running     0          15h
+my-kube-prometheus-stack-operator-7bf78c6bb9-kcgkf             1/1     Running     0          16h
+my-kube-prometheus-stack-prometheus-node-exporter-87jb7        1/1     Running     0          114m
+my-kube-prometheus-stack-prometheus-node-exporter-fxhlx        1/1     Running     0          114m
+my-kube-prometheus-stack-prometheus-node-exporter-k9vf8        1/1     Running     0          149m
+my-kube-prometheus-stack-prometheus-node-exporter-rr5qq        1/1     Running     0          149m
+prometheus-msteams-6749f49647-jqcsn                            1/1     Running     0          16h
+prometheus-my-kube-prometheus-stack-prometheus-0               2/2     Running     0          16h
+[ec2-user@vodafone ~]$ kubectl   get  svc -n monitoring
+NAME                                                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+alertmanager-operated                               ClusterIP   None             <none>        9093/TCP,9094/TCP,9094/UDP   41h
+my-kube-prometheus-stack-alertmanager               ClusterIP   10.100.189.13    <none>        9093/TCP,8080/TCP            41h
+my-kube-prometheus-stack-grafana                    ClusterIP   10.100.121.21    <none>        80/TCP                       41h
+my-kube-prometheus-stack-kube-state-metrics         ClusterIP   10.100.83.127    <none>        8080/TCP                     41h
+my-kube-prometheus-stack-operator                   ClusterIP   10.100.95.254    <none>        443/TCP                      41h
+my-kube-prometheus-stack-prometheus                 ClusterIP   10.100.105.248   <none>        9090/TCP,8080/TCP            41h
+my-kube-prometheus-stack-prometheus-node-exporter   ClusterIP   10.100.165.14    <none>        9100/TCP                     41h
+prometheus-msteams                                  ClusterIP   10.100.197.125   <none>        2000/TCP                     17h
+prometheus-operated                                 ClusterIP   None             <none>        9090/TCP                     41h
+[ec2-user@vodafone ~]$ 
+[ec2-user@vodafone ~]$ kubectl  get ep -n monitoring 
+NAME                                                ENDPOINTS                                                                AGE
+alertmanager-operated                               192.168.31.120:9094,192.168.31.120:9094,192.168.31.120:9093              41h
+my-kube-prometheus-stack-alertmanager               192.168.31.120:8080,192.168.31.120:9093                                  41h
+my-kube-prometheus-stack-grafana                    192.168.40.131:3000                                                      41h
+my-kube-prometheus-stack-kube-state-metrics         192.168.42.3:8080                                                        41h
+my-kube-prometheus-stack-operator                   192.168.23.189:10250                                                     41h
+my-kube-prometheus-stack-prometheus                 192.168.28.90:9090,192.168.28.90:8080                                    41h
+my-kube-prometheus-stack-prometheus-node-exporter   192.168.19.93:9100,192.168.30.100:9100,192.168.40.130:9100 + 1 more...   41h
+prometheus-msteams                                  192.168.28.28:2000                                                       17h
+prometheus-operated                                 192.168.28.90:9090                                                       41h
+[ec2-user@vodafone ~]$ kubectl  get  ing -n monitoring 
+NAME              CLASS   HOSTS                  ADDRESS                                                                    PORTS   AGE
+alert-route       nginx   alert.delvex.io        a007dc21a36fd4131b54a0f746b3c6a7-1674775037.ap-south-1.elb.amazonaws.com   80      19h
+grafana-ingress   nginx   grafana.delvex.io      a007dc21a36fd4131b54a0f746b3c6a7-1674775037.ap-south-1.elb.amazonaws.com   80      36h
+minimal-ingress   nginx   prometheus.delvex.io   a007dc21a36fd4131b54a0f746b3c6a7-1674775037.ap-south-1.elb.amazonaws.com   80      36h
+```
