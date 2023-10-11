@@ -98,3 +98,29 @@ ashuapp-scrape-config   3m49s
 ```
 
 
+### prom rule 
+
+```
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  labels:
+    release: my-kube-prometheus-stack
+  name: ashu-flask-alert-rules
+  namespace: monitoring
+spec:
+    groups:
+    - name: ashu-flask-rule1
+      rules:
+      - alert: AshuFlaskAppDeloymentReplicasMismatch
+        expr: kube_deployment_spec_replicas{namespace="ashu-project", deployment="dashboard"} != kube_deployment_status_replicas_available{namespace="ashu-project", deployment="dashboard"}
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has a replicas mismatch"
+          description: "The replicas for Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} do not match for more than 1 minutes."
+
+```
+
