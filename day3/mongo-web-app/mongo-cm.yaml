@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mongo-init-config
-  namespace: dashboard
+  namespace: ashu-project
 data:
   mongo-init.js: |
     print("Started Adding the Users.");
