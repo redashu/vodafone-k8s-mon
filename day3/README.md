@@ -49,3 +49,52 @@ alert-route       nginx   alert.delvex.io        a007dc21a36fd4131b54a0f746b3c6a
 grafana-ingress   nginx   grafana.delvex.io      a007dc21a36fd4131b54a0f746b3c6a7-1674775037.ap-south-1.elb.amazonaws.com   80      36h
 minimal-ingress   nginx   prometheus.delvex.io   a007dc21a36fd4131b54a0f746b3c6a7-1674775037.ap-south-1.elb.amazonaws.com   80      36h
 ```
+
+
+### CRD in k8s after deployment of Helm based prometheus stack 
+
+```
+[ec2-user@vodafone mongo-db-webapp]$ kubectl  api-resources   | grep -i monitor
+alertmanagerconfigs               amcfg        monitoring.coreos.com/v1alpha1         true         AlertmanagerConfig
+alertmanagers                     am           monitoring.coreos.com/v1               true         Alertmanager
+podmonitors                       pmon         monitoring.coreos.com/v1               true         PodMonitor
+probes                            prb          monitoring.coreos.com/v1               true         Probe
+prometheusagents                  promagent    monitoring.coreos.com/v1alpha1         true         PrometheusAgent
+prometheuses                      prom         monitoring.coreos.com/v1               true         Prometheus
+prometheusrules                   promrule     monitoring.coreos.com/v1               true         PrometheusRule
+scrapeconfigs                     scfg         monitoring.coreos.com/v1alpha1         true         ScrapeConfig
+servicemonitors                   smon         monitoring.coreos.com/v1               true         ServiceMonitor
+thanosrulers                      ruler        monitoring.coreos.com/v1               true         ThanosRuler
+```
+
+### scarpe config 
+
+```
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: ashuapp-scrape-config 
+  namespace: monitoring # where prometheus got deployed
+  labels:
+    release: prom-stack
+spec:
+  staticConfigs:
+    - labels:
+        job: ashu-mongodb-exporter
+      targets:
+        - mongodb-exporter.ashu-project.svc.cluster.local:9216
+    - labels:
+        job: ashu-nginx-exporter
+      targets:
+        - nginx-exporter.ashu-project.svc.cluster.local:9113
+```
+
+### deploy it
+
+```
+[ec2-user@vodafone mongo-db-webapp]$ kubectl  get scrapeconfigs.monitoring.coreos.com -n monitoring 
+NAME                    AGE
+ashuapp-scrape-config   3m49s
+```
+
+
