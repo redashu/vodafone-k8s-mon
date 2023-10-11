@@ -25,7 +25,7 @@ spec:
             - name: DB_PASS
               value: secret
             - name: DB_HOST
-              value: "mongodb.dashboard.svc.cluster.local"
+              value: "mongodb.ashu-project.svc.cluster.local"
             - name: DB_PORT
               value: "27017"
         - name: nginx
