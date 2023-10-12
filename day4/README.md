@@ -108,4 +108,9 @@ push_to_gateway(pushgateway_url, job=job_name, registry=registry, grouping_key={
 
 <img src="flb.png">
 
+### CLoudwatch case 
+
+<img src="cld.png">
+
+
 
