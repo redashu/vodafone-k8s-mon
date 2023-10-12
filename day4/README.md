@@ -1,12 +1,4 @@
-# vodafone-k8s-mon
+## REvsion 
 
-### Training plan 
-
-<img src="plan.png">
-
-### labs 
-
-<img src="labs.png">
-
-
+<img src="rev.png">
 
