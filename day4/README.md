@@ -95,3 +95,13 @@ metric.labels(job=job_name, instance=instance).set(metric_value)
 push_to_gateway(pushgateway_url, job=job_name, registry=registry, grouping_key={'instance': instance})
 
 ```
+
+### FluentBit and FluentD
+
+<img src="fl1.png">
+
+### fluentbit - cloudwatch -- grafana 
+
+<img src="clb.png">
+
+
