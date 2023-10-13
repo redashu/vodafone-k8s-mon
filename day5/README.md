@@ -1,12 +1,10 @@
-# vodafone-k8s-mon
+### Revision 
 
-### Training plan 
+### Grafana Loki
 
-<img src="plan.png">
+<img src="loki.png">
 
-### labs 
+### Cloudwatch -- Internal agent to k8s stack monitoring -- COntainerInsight 
 
-<img src="labs.png">
-
-
+<img src="cin.png">
 
